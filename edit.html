@@ -9,6 +9,8 @@
         var map;
         var poly;
         var markero = [];
+        var currentid;
+        var allline;
         function LocalMapType() { }
 
         LocalMapType.prototype.tileSize = new google.maps.Size(256, 256);
@@ -221,6 +223,10 @@
         function savesev() {
             var auth = Math.ceil(Math.random() * 1000);
             var templateName = $('#tplist').find("option:selected").text();
+            var auther = prompt("提交人", "请输入姓名");
+            if (auther == null) return;
+            var infotxt = prompt("更新日志", "请简要描述您进行了哪些修改");
+            if (infotxt == null) return;
             var Tname = prompt("提交到服务器：提交到服务器的数据将覆盖原有班车站点信息！\n请确保您提交的信息正确" + "。三思后请输入验证码：" + auth, "请在这里输入验证码");
             if (Tname == null) { alert("操作已取消"); return; }
             if (Tname != auth) {
@@ -241,10 +247,11 @@
                     type: "post",
                     dataType: "text",
         
-                    data: { 'datatoSave': JSON.stringify(allline) },
+                    data: { 'datatoSave': JSON.stringify(allline) ,'auther':auther,'infotxt':infotxt,'currentid':currentid},
                     timeout: 3000,
                     success: function (data4) {
                         alert(data4);
+                        location = location;
                     },
                     complete: function (XMLHttpRequest, status) {
                         if (status === 'timeout') {
@@ -265,7 +272,11 @@
                 async: false,
                 timeout: 3000,
                 success: function (data4) {
-                    allline = JSON.parse(data4);
+                    var resu = JSON.parse(data4);
+                    allline = resu["allline"];
+                    $("#verid").text(resu["id"]);
+                    $("#subtime").text(resu["subtime"]);
+                    currentid = resu["id"];
                     var lineindex=GetQueryString("lineindex");
                     setTimeout(loadline, 500,lineindex);
                 },
@@ -393,7 +404,11 @@
         <input type="button" value="本地保存" onclick="savelocal()" title="在我的电脑上暂时保存">
         <input type="button" value="提交到服务器" onclick="savesev()" title="提交到服务器后所有用户都能看到">
         <input type="button" value="查看全部线路" onclick="jump()" title="提交到服务器后所有用户都能看到"><br />
-        <textarea id="jsdisp" style="height:500px"></textarea>
+        <textarea id="jsdisp" style="height:420px"></textarea>
+        <p>
+            当前数据版本号:<span id="verid">0</span><br />
+            最后提交时间:<span id="subtime"></span>
+        </p>
 
     </div>
 
