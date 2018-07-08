@@ -1,21 +1,21 @@
 ﻿<!DOCTYPE html>
-<html>  
-    <head>
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
-        <title>班车线路查询</title>
-        <script type="text/javascript" src="gapi.js"></script>
-        <script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
+    <title>新松班车线路查询</title>
+    <script type="text/javascript" src="gapi.js"></script>
+    <script type="text/javascript" src="jquery-1.8.3.min.js"></script>
     <script>
-	   var map;
-	   var poly;
-	   function LocalMapType() {}
-  
+        var map;
+        var poly;
+        function LocalMapType() { }
+
         LocalMapType.prototype.tileSize = new google.maps.Size(256, 256);
         LocalMapType.prototype.maxZoom = 15;   //地图显示最大级别
         LocalMapType.prototype.minZoom = 5;    //地图显示最小级别
         LocalMapType.prototype.name = "内网地图";
         LocalMapType.prototype.alt = "显示本地地图数据";
-        LocalMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
+        LocalMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
             var img = ownerDocument.createElement("img");
             img.style.width = this.tileSize.width + "px";
             img.style.height = this.tileSize.height + "px";
@@ -23,50 +23,50 @@
             //谷歌矢量图 maptile/googlemaps/roadmap
             //谷歌影像图 maptile/googlemaps/roadmap
             //MapABC地图 maptile/mapabc/
-			//strURL = "maptile/googlemaps/roadmap/";
+            //strURL = "maptile/googlemaps/roadmap/";
 
-			mapPicDir = "maptile/googlemaps/roadmap/";
+            mapPicDir = "maptile/googlemaps/roadmap/";
             mapPicDir = "tilemap/";
-			var curSize = Math.pow(2,zoom);
-            strURL = mapPicDir + zoom + "/" + (coord.x % curSize )+ "/" + (coord.y % curSize)+ ".PNG";
-			//strURL = "E:/地图文件/谷歌地图中国0-12级googlemaps/googlemaps/roadmap/" + zoom + "/" + (coord.x % curSize )+ "/" + (coord.y % curSize)+ ".PNG";
+            var curSize = Math.pow(2, zoom);
+            strURL = mapPicDir + zoom + "/" + (coord.x % curSize) + "/" + (coord.y % curSize) + ".PNG";
+            //strURL = "E:/地图文件/谷歌地图中国0-12级googlemaps/googlemaps/roadmap/" + zoom + "/" + (coord.x % curSize )+ "/" + (coord.y % curSize)+ ".PNG";
 
             img.src = strURL;
             return img;
         };
-  
-      var localMapType = new LocalMapType();
-	  
-      function initialize() {
-        var myLatlng = new google.maps.LatLng(41.787, 123.412);
-        var mapOptions = {
-          zoom: 12,
-          center: myLatlng,
-          //zoom: 3,
-    //center: {lat: 0, lng: -180},
-          mapTypeControlOptions: {
-			mapTypeIds: [
-			google.maps.MapTypeId.ROADMAP,
-			google.maps.MapTypeId.HYBRID,
-			google.maps.MapTypeId.SATELLITE,
-			google.maps.MapTypeId.TERRAIN,
-			'localMap' ]  //定义地图类型
-		  },
-		  panControl: true,
-		  zoomControl: true,
-		  mapTypeControl: true,
-		  scaleControl: true,
-		  streetViewControl: false,
-		  overviewMapControl: true
-        }
+
+        var localMapType = new LocalMapType();
+
+        function initialize() {
+            var myLatlng = new google.maps.LatLng(41.787, 123.412);
+            var mapOptions = {
+                zoom: 12,
+                center: myLatlng,
+                //zoom: 3,
+                //center: {lat: 0, lng: -180},
+                mapTypeControlOptions: {
+                    mapTypeIds: [
+                        google.maps.MapTypeId.ROADMAP,
+                        google.maps.MapTypeId.HYBRID,
+                        google.maps.MapTypeId.SATELLITE,
+                        google.maps.MapTypeId.TERRAIN,
+                        'localMap']  //定义地图类型
+                },
+                panControl: true,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: true,
+                streetViewControl: false,
+                overviewMapControl: true
+            }
 
 
-        map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-		map.mapTypes.set('localMap', localMapType);   //绑定本地地图类型
-        map.setMapTypeId('localMap');    //指定显示本地地图
-		map.setOptions({draggable: true});
-		
-          
+            map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+            map.mapTypes.set('localMap', localMapType);   //绑定本地地图类型
+            map.setMapTypeId('localMap');    //指定显示本地地图
+            map.setOptions({ draggable: true });
+
+            
         }
         allline = [];//JSON.parse(localStorage.che);
 
@@ -77,20 +77,41 @@
                     var coord = allline[i].marks[j].coord;
                     //debugger;
                     var coo = new google.maps.LatLng(coord.lat, coord.lng);
-                     timeout = i * 300 + j * 135;
-                    window.setTimeout(function (i, j,coo) {
-                        //debugger;
+                    timeout = 10;
+                    window.setTimeout(function (i, j, coo) {
+                        console.log(i,j);
                         var marker = new google.maps.Marker({
                             position: coo,
-                            title: allline[i].line+':'+ allline[i].marks[j].name,
+                            title: allline[i].line + ':' + allline[i].marks[j].name,
                             map: map,
-                            animation: google.maps.Animation.DROP
+                            //animation: google.maps.Animation.DROP
                         });
-                    }, timeout,i,j,coo);
+                        var infowindow = new google.maps.InfoWindow({
+                            content:  allline[i].line + ':' + allline[i].marks[j].name
+                        });
+                        marker.addListener('click', function () {
+                            infowindow.open(map, marker);
+                        });
+                    }, timeout, i, j, coo);
+
+                        // console.log(i,j);
+                        // var marker = new google.maps.Marker({
+                        //     position: coo,
+                        //     title: allline[i].line + ':' + allline[i].marks[j].name,
+                        //     map: map,
+                        //     //animation: google.maps.Animation.DROP
+                        // });
+                        // var infowindow = new google.maps.InfoWindow({
+                        //     content:  allline[i].line + ':' + allline[i].marks[j].name
+                        // });
+                        // marker.addListener('click', function () {
+                        //     infowindow.open(map, marker);
+                        // });
+                    
 
                     //debugger;
                 }
-                var colo='#'+Math.floor(Math.random()*0xbbbbbb).toString(16);
+                var colo = '#' + Math.floor(Math.random() * 0xbbbbbb).toString(16);
                 poly = new google.maps.Polyline({
                     strokeColor: colo,
                     strokeOpacity: 0.6,
@@ -106,13 +127,16 @@
                 }
 
             }
+            console.log("rain end success!")
+            setTimeout(function(){map.setZoom(13)},1400) ;
         }
-
+        var ua=navigator.userAgent.toLowerCase();
         $(document).ready(function () {
             $.ajax({
                 url: "GetHandler.ashx?id=" + Math.random(),
                 type: "post",
                 dataType: "text",
+                data:{ 'ua': ua },
                 timeout: 5000,
                 success: function (data4) {
                     var resu = JSON.parse(data4);
@@ -121,13 +145,12 @@
                     $("#subtime").text(resu["subtime"]);
                     $("#subinfo").text(resu["subinfo"]);
                     $("#jsdisp").val(JSON.stringify(allline));
-                    var lis="线路序号：\n";
-                    for (i=0;i<allline.length;i++)
-                    {
-                        lis+=i+":"+allline[i].line+"\n";
+                    var lis = "线路序号：\n";
+                    for (i = 0; i < allline.length; i++) {
+                        lis += i + ":" + allline[i].line + "\n";
                     }
                     $("#lsdisp").val(lis);
-                    setTimeout(rain, 500);//下雨一样的效果:-)
+                    setTimeout(rain, 20);//下雨一样的效果:-)
                 },
                 complete: function (XMLHttpRequest, status) {
                     if (status === 'timeout') {
@@ -135,81 +158,95 @@
                     }
                 }
             });
-            
+
         });
         function jump() {
+        	alert("请在公司内网访问jin-jing.siasun.com/map来进行站点编辑");
+        	return;
             var lineindex = prompt("请输入要调整的线路序号", "0");
             if (lineindex == null)
                 return;
-            self.location = "edit.html?lineindex="+lineindex;
+            self.location = "edit.html?lineindex=" + lineindex;
         }
-	</script>
-    </head>
-    
-    <body onload="initialize()">
-		<div id="map_canvas" style="left:0;top:0;width:80%;height:100%;position:absolute;">
-					
-		</div>
+        function f5page(){
+            window.location.reload(true);
+        }
+    </script>
+</head>
 
-        <div style="position: absolute;left: 80%;top: 1px;padding:0px;width:19%">
-            <div height="70%" style="margin:5px;height:370px;overflow: auto;">
-              <h3>关于本网站</h3>
-              <p>&nbsp本网站上线于2017年10月，提供的班车站点数据是我根据站点名百度得到的，所以有一些站点坐标不是很准确，特别是一些非常不走心的站名。
-              比如有一站叫维康药房，沈阳有好多个维康，我只能根据发车时间和前后站点位置进行推测，所以可能会有一些偏差，请您谅解。
-              当然如果你想让站点信息变得更准确，减少后面的访客被误导的可能性，你是可以修改站点信息的，请往下看:-)
-              </p>
-              <p>
-                  &nbsp这个网站是新松特种机器人BG的一个菜鸟程序员利用<b>业余时间</b>写的，目的是方便大家了解各个班车的发车点位置和早发车时间。
-                虽然是业余项目，我还是会尽量抽时间把它做的更完美，如果你对这个网页有什么建议，可以给我发邮件。
-              </p>
-              <p>
-                  &nbsp当然我更鼓励大家自己动手丰衣足食，这个项目在GitHub上开源，你可以在<a href="https://github.com/zhaoparrot/Shuttle-Bus-Route" target="_blank">这里<img src="GitHub-Mark-32px.png" width="16px"/></a>找到全部的
+<body onload="initialize()">
+    <input type="button" value="刷新页面" onclick="f5page()" />如果线路未正常加载 请缩放地图或刷新页面<br />
+    <div id="map_canvas" style="left:0;top:25;width:100%;height:100%;position:absolute;">
+
+    </div>
+
+    <div style="position: absolute;left: 0%;top: 107%;padding:0px;width:100%">
+        <div  style="margin:5px;overflow: auto;">
+            点击地图右上角的全屏按钮，可以单指拖动，体验更佳！
+            <h3>关于本网站</h3>
+            <p>
+                &nbsp本网站上线于2017年10月，提供的班车站点数据是我根据站点名百度得到的，所以有一些站点坐标不是很准确，特别是一些非常不走心的站名。
+                比如有一站叫维康药房，沈阳有好多个维康，我只能根据发车时间和前后站点位置进行推测，所以可能会有一些偏差，请您谅解。
+                当然如果你想让站点信息变得更准确，减少后面的同事被误导的可能性，你是可以修改站点信息的，请往下看:-)
+            </p>
+            <p>
+                &nbsp这个网站是新松特种机器人BG的一个菜鸟程序员利用<b>业余时间</b>写的，目的是方便大家了解各个班车的发车点位置和早发车时间。
+                虽然是业余项目，我还是会尽量抽时间把它做的更完美，如果你对这个网页有什么建议，可以给我<a href="mailto:siasunrobot@sina.com">发邮件</a>。
+            </p>
+            <p>
+                &nbsp当然我更鼓励大家自己动手丰衣足食，这个项目在GitHub上开源，你可以在<a href="https://github.com/zhaoparrot/Shuttle-Bus-Route" target="_blank">这里<img src="GitHub-Mark-32px.png" width="16px" /></a>找到全部的
                 源代码（不包含班车站点坐标文件）。即使你没有编程开发基础也不用担心，我使用的都是很容易学的技术路线，html、JS、CSS网上都有详细的<a href="http://www.runoob.com/" target="_blank">菜鸟教程</a>。
                 如果你修改的内容经过测试没有什么问题的话，可以提交pull request到我的GitHub上，我会视情况合并到我的工程里。
-                
-              </p>
-              <p>
-              如果你认为这个网站不错，也想为这东西做出一些贡献，可以从校准站点的真实坐标开始。
-              </p>
-              <p>
-              如果你特别喜欢这个网站，不妨小额赞助我一下，让我有动力继续写出更好的东西出来。
-              </p>
-              
-              微信打赏↓
-              
-              
-              <img src="wechat.jpg"/ width="95%">支付宝打赏↓<img src="alpay.jpg" width="95%">
-              <p>
-              常见问题：
-              
-              </p>
-              <p>
-              <b>班车站点位置不准确，我该如何调整？</b>&nbsp
-              您可以先查看您要调整的班车序号，比如于洪4是17号，点击下面的<b>我要纠偏</b>按钮，输入17就会打开对应线路的坐标图，
-              用鼠标拖拽班车站点大头钉到你认为最准确的上车地点，然后点击<b>保存到服务器</b>按钮，
-              按照提示填写一些简单的描述，就能够让大家都看到你修改过的位置啦！
-              
-              </p>
-              <p>
-              <b>发车时间有变化，我该如何调整？</b>&nbsp
-              您可以先查看您要调整的班车序号，比如于洪4是17号，点击下面的<b>我要纠偏</b>按钮，输入17就会打开对应线路的坐标图，
-              在右侧文本框里找到你要修改的站点名后面的数字，修改为正确的时间，然后点击<b>保存到服务器</b>按钮，
-              按照提示填写一些简单的描述，就能够让大家都看到你修改过的信息啦！注意不要修改任何括号、逗号和引号，他们有重要的语法作用。
-              
-              </p>
-              <p>
-              <b>在编辑页面不小心手抖点错，出现了错误的新站点怎么办？</b>&nbsp
-              不要点保存，直接<i>刷新页面</i>就会重新载入服务器上的版本。
-              </p>
-              <p>当前数据版本号:<span id="verid">0</span><br />
+
+            </p>
+            <p>
+                如果你认为这个网站不错，也想为这东西做出一些贡献，可以从校准站点的真实坐标开始。
+            </p>
+            <p>
+                如果你特别喜欢这个网站，不妨小额赞助我一下，让我有动力继续写出更好的东西出来。
+            </p>
+
+            微信打赏↓<br />
+
+
+            <img src="wechat.jpg"/ width="95%" style="max-width:300px"><br />
+            支付宝打赏↓<br /><img src="alpay.jpg" width="95%" style="max-width:300px">
+            <p>
+                常见问题：
+
+            </p>
+            <p>
+                <b>班车站点位置不准确，我该如何调整？</b>&nbsp
+                仅PC端可以修改班车位置<br />
+                您可以先查看您要调整的班车序号，比如于洪4是17号，点击下面的<b>我要纠偏</b>按钮，输入17就会打开对应线路的坐标图，
+                用鼠标拖拽班车站点大头钉到你认为最准确的上车地点，然后点击<b>保存到服务器</b>按钮，
+                按照提示填写一些简单的描述，就能够让大家都看到你修改过的位置啦！
+
+            </p>
+            <p>
+                <b>发车时间有变化，我该如何调整？</b>&nbsp
+                仅PC端可以修改班车位置<br />
+                您可以先查看您要调整的班车序号，比如于洪4是17号，点击下面的<b>我要纠偏</b>按钮，输入17就会打开对应线路的坐标图，
+                在右侧文本框里找到你要修改的站点名后面的数字，修改为正确的时间，然后点击<b>保存到服务器</b>按钮，
+                按照提示填写一些简单的描述，就能够让大家都看到你修改过的信息啦！注意不要修改任何括号、逗号和引号，他们有重要的语法作用。
+
+            </p>
+            <p>
+                <b>在编辑页面不小心手抖点错，出现了错误的新站点怎么办？</b>&nbsp
+                不要点保存，直接<i>刷新页面</i>就会重新载入服务器上的版本。
+            </p>
+            <p>
+                当前数据版本号:<span id="verid">0</span><br />
                 最后提交时间:<span id="subtime"></span><br />
-                提交说明:<span id="subinfo"></span></p>
-            </div>
-            <textarea  id="jsdisp" style="height:80px"></textarea><br />
-            <textarea  id="lsdisp" style="height:100px"></textarea><br />
-            <input type="button" value="我要纠偏" onclick="jump()"/>
+                提交说明:<span id="subinfo"></span>
+            </p>
         </div>
-        
-    </body>
+        <textarea id="jsdisp" style="height:80px"></textarea><br />
+        <textarea id="lsdisp" style="height:100px"></textarea><br />
+        <input type="button" value="我要纠偏" onclick="jump()" /><br />
+        纠偏功能没有针对手机端做适配，手机用户请谨慎操作！
+    </div>
+
+</body>
 
 </html>
